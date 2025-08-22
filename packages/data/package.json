@@ -1,0 +1,13 @@
+{
+  "name": "@hgss-breeding-planner/data",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts",
+    "build:data": "ts-node scripts/build-data.ts"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1"
+  }
+}
