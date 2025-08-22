@@ -1,19 +1,19 @@
 {
-  "name": "@hgss-breeding-planner/cli",
-  "version": "0.1.0",
-  "private": true,
-  "bin": {
-    "hgss-breed": "dist/index.js"
-  },
-  "scripts": {
-    "build": "tsup src/index.ts",
-    "start": "node dist/index.js"
-  },
-  "dependencies": {
-    "commander": "^10.0.0",
-    "csv-parse": "^5.5.0",
-    "@hgss-breeding-planner/core": "*",
-    "@hgss-breeding-planner/data": "*",
-    "@hgss-breeding-planner/save-ingest": "*"
-  }
+"name": "@hgss-breeding-planner/cli",
+"version": "0.1.0",
+"private": true,
+"bin": {
+"hgss-breed": "dist/index.js"
+},
+"scripts": {
+"build": "tsup src/index.ts",
+"start": "node dist/index.js"
+},
+"dependencies": {
+"commander": "^10.0.0",
+"csv-parse": "^5.5.0",
+"@hgss-breeding-planner/core": "",
+"@hgss-breeding-planner/data": "",
+"@hgss-breeding-planner/save-ingest": "*"
+}
 }

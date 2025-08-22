@@ -1,41 +1,15 @@
-# HGSS Breeding Planner
+HGSS Breeding Planner
 
 Monorepo scaffold for a Pokémon HeartGold/SoulSilver breeding planner.
 
-## Packages
+Packages
 
-- `@hgss-breeding-planner/core` – core HG/SS breeding logic.
-- `@hgss-breeding-planner/data` – static egg group dataset.
-- `@hgss-breeding-planner/save-ingest` – parse `.sav`/`.pk4` dumps (JSON fixtures in this repo) to parents.
-- `@hgss-breeding-planner/cli` – command-line interface.
-- `@hgss-breeding-planner/web` – Next.js web frontend.
+@hgss-breeding-planner/core – core HG/SS breeding logic.
 
-## Development
+@hgss-breeding-planner/data – static egg group dataset.
 
-```bash
-npm install
-npm test
-```
+@hgss-breeding-planner/cli – command-line interface.
 
-### CLI usage
+@hgss-breeding-planner/web – Next.js web frontend.
 
-Build once then run commands via `npx tsx` for deterministic output:
-
-```bash
-# rank pairs
-npx tsx apps/cli/src/index.ts rank --parents parents.csv --target target.json --seed 1 --eggs 1000
-
-# plan breeding chain
-npx tsx apps/cli/src/index.ts plan --parents parents.csv --target target.json --seed 1 --eggs 200 --beam 3 --format md
-
-# ingest save fixture
-npx tsx apps/cli/src/index.ts ingest --save sample.pk4 --out parents.csv
-```
-
-### Web
-
-```
-npm run dev -w @hgss-breeding-planner/web
-```
-
-Visit `/import-save` to test save ingestion.
+Development
