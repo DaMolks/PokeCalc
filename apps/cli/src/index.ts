@@ -33,35 +33,35 @@ program.command('rank')
   .action(opts => {
     const roster = readParents(opts.parents);
     const target = readTarget(opts.target);
+    // NOTE: abilities mapping non fourni dans le dépôt actuel → fallback vide.
     const abilities: Record<string, [string, string]> = {};
-    const res = rankPairsFromRoster(roster, abilities, target, speciesEggGroups as any, BigInt(opts.seed), +opts.eggs);
-    const csv = res.map(r => `${r.a.species},${r.b.species},${r.probability.toFixed(4)}`).join('\n');
-    if (opts.out) fs.writeFileSync(opts.out, csv); else console.log(csv);
+    const res = rankPairsFromRoster(
+      roster,
+      abilities,
+      target,
+      speciesEggGroups as any,
+      BigInt(opts.seed),
+      +opts.eggs
+    );
+    const header = 'parentA,parentB,probability';
+    const rows = res.map(r => `${r.a.species},${r.b.species},${r.probability.toFixed(4)}`);
+    const out = [header, ...rows].join('\n');
+    if (opts.out) fs.writeFileSync(opts.out, out);
+    else console.log(out);
   });
 
 program.command('plan')
   .requiredOption('--parents <file>')
   .requiredOption('--target <file>')
-  .option('--seed <seed>', 'RNG seed', '1')
-  .option('--eggs <n>', 'simulations per step', '200')
   .option('--out <file>')
   .action(opts => {
     const roster = readParents(opts.parents);
     const target = readTarget(opts.target);
-    const plans = planBreedingChain(roster, target, { seed: BigInt(opts.seed), trials: +opts.eggs });
-    const md = plans
-      .map(p => {
-        const header = `## ${p.description} (p=${p.probability.toFixed(4)})`;
-        const steps = p.steps
-          .map((s, idx) => {
-            const parents = `${s.parents[0].species}/${s.parents[1].species}`;
-            return `${idx + 1}. ${parents} p=${s.probability.toFixed(4)}`;
-          })
-          .join('\\n');
-        return `${header}\\n${steps}`;
-      })
-      .join('\\n\\n');
-    if (opts.out) fs.writeFileSync(opts.out, md); else console.log(md);
+    // Signature actuelle du core : planBreedingChain(roster, target)
+    const plan = planBreedingChain(roster, target);
+    const md = plan.map((p: any) => `- ${p.description}`).join('\n');
+    if (opts.out) fs.writeFileSync(opts.out, md);
+    else console.log(md);
   });
 
 program.parse();
