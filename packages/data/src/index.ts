@@ -1,4 +1,2 @@
-import eggGroups from './eggGroups.json';
-import speciesEggGroups from './speciesEggGroups.json';
-
-export { eggGroups, speciesEggGroups };
+export { default as eggGroups } from './eggGroups.json';
+export { default as speciesEggGroups } from './speciesEggGroups.full.json';

@@ -189,7 +189,6 @@ export function rankPairsFromRoster(roster: Parent[], abilities: Record<string, 
   return result.sort((x,y) => y.probability - x.probability);
 }
 
-/** Advanced planner with one-generation beam search */
 export interface PlanStep {
   parents: [Parent, Parent];
   items: [Item, Item];
