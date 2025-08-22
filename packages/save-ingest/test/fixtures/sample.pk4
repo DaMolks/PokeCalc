@@ -1,0 +1,22 @@
+[
+  {
+    "species": "Eevee",
+    "pid": 1,
+    "ivs": {"hp":31,"atk":31,"def":31,"spa":31,"spd":31,"spe":31},
+    "nature": "Adamant",
+    "ability": "Run Away",
+    "otid": 12345,
+    "sid": 54321,
+    "nickname": "EEVEE"
+  },
+  {
+    "species": "Arcanine",
+    "pid": 2,
+    "ivs": {"hp":20,"atk":25,"def":18,"spa":12,"spd":30,"spe":29},
+    "nature": "Jolly",
+    "ability": "Intimidate",
+    "otid": 12345,
+    "sid": 54321,
+    "nickname": "ARCANINE"
+  }
+]

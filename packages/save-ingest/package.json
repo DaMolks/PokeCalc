@@ -1,0 +1,12 @@
+{
+  "name": "@hgss-breeding-planner/save-ingest",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsup src/index.ts",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@hgss-breeding-planner/core": "*"
+  }
+}
