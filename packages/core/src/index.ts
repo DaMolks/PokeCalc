@@ -189,7 +189,128 @@ export function rankPairsFromRoster(roster: Parent[], abilities: Record<string, 
   return result.sort((x,y) => y.probability - x.probability);
 }
 
-export function planBreedingChain(roster: Parent[], target: Target) {
-  // Placeholder for heuristic planner (beam search, etc.).
-  return [{ description: 'Direct breeding', parents: roster.slice(0,2) }];
+/** Advanced planner with one-generation beam search */
+export interface PlanStep {
+  parents: [Parent, Parent];
+  items: [Item, Item];
+  probability: number;
+  child?: Parent;
+}
+
+export interface PlanResult {
+  steps: PlanStep[];
+  probability: number;
+  eggs: number;
+  description: string;
+}
+
+function scoreChild(child: Parent, target: Target): number {
+  let score = 0;
+  for (const [s, v] of Object.entries(target.ivs)) {
+    if ((child.ivs as any)[s] >= (v as number)) score++;
+  }
+  if (target.nature && child.nature === target.nature) score++;
+  if (target.ability && child.ability === target.ability) score++;
+  return score;
+}
+
+export function planBreedingChain(
+  roster: Parent[],
+  target: Target,
+  opts: { seed?: bigint; trials?: number; beamWidth?: number } = {}
+): PlanResult[] {
+  const seed = opts.seed ?? 1n;
+  const trials = opts.trials ?? 200;
+  const beam = opts.beamWidth ?? 3;
+  const abilities: Record<string, [Ability, Ability]> = {};
+
+  // Direct plan
+  let bestDirect: PlanResult | undefined;
+  for (let i = 0; i < roster.length; i++) {
+    for (let j = i + 1; j < roster.length; j++) {
+      const p1 = roster[i];
+      const p2 = roster[j];
+      const abil = abilities[p1.species.toLowerCase()] || [p1.ability, p2.ability];
+      const best = bestItemsForPair(p1, p2, abil as [Ability, Ability], target, seed, trials);
+      if (!bestDirect || best.probability > bestDirect.probability) {
+        const step: PlanStep = { parents: [p1, p2], items: best.items, probability: best.probability };
+        bestDirect = {
+          steps: [step],
+          probability: best.probability,
+          eggs: best.probability > 0 ? 1 / best.probability : Infinity,
+          description: 'Direct breeding'
+        };
+      }
+    }
+  }
+
+  // One-generation beam search
+  interface Candidate {
+    child: Parent;
+    probability: number;
+    steps: PlanStep[];
+    score: number;
+  }
+  const candidates: Candidate[] = [];
+  for (let i = 0; i < roster.length; i++) {
+    for (let j = i + 1; j < roster.length; j++) {
+      const p1 = roster[i];
+      const p2 = roster[j];
+      const rng = new RNG(seed + BigInt(i * 131 + j));
+      let bestChild: Parent | undefined;
+      let bestScore = -1;
+      let bestCount = 0;
+      for (let t = 0; t < trials; t++) {
+        const ivs = sampleChildIVs(p1, p2, rng);
+        const nature = sampleChildNature(p1, p2, rng);
+        const ability = sampleChildAbility([p1.ability, p2.ability], rng);
+        const child: Parent = { species: p1.species, ivs, nature, ability };
+        const sc = scoreChild(child, target);
+        if (sc > bestScore) {
+          bestScore = sc;
+          bestChild = child;
+          bestCount = 1;
+        } else if (sc === bestScore) {
+          bestCount++;
+        }
+      }
+      if (!bestChild) continue;
+      const childProb = bestCount / trials;
+      // find best partner for the child
+      let bestFinal: { step: PlanStep; probability: number } | undefined;
+      for (let k = 0; k < roster.length; k++) {
+        const partner = roster[k];
+        const abil = abilities[partner.species.toLowerCase()] || [partner.ability, partner.ability];
+        const bestItems = bestItemsForPair(bestChild, partner, abil as [Ability, Ability], target, seed + 1n, trials);
+        if (!bestFinal || bestItems.probability > bestFinal.probability) {
+          bestFinal = {
+            step: { parents: [bestChild, partner], items: bestItems.items, probability: bestItems.probability },
+            probability: bestItems.probability
+          };
+        }
+      }
+      if (!bestFinal) continue;
+      candidates.push({
+        child: bestChild,
+        probability: childProb * bestFinal.probability,
+        steps: [
+          { parents: [p1, p2], items: [{ kind: 'None' }, { kind: 'None' }], probability: childProb, child: bestChild },
+          bestFinal.step
+        ],
+        score: bestScore
+      });
+    }
+  }
+  candidates.sort((a, b) => b.probability - a.probability);
+  const chain = candidates.slice(0, beam).map(c => ({
+    steps: c.steps,
+    probability: c.probability,
+    eggs: c.probability > 0 ? 1 / c.probability : Infinity,
+    description: '1-generation plan'
+  }));
+
+  const plans: PlanResult[] = [];
+  if (bestDirect) plans.push(bestDirect);
+  plans.push(...chain);
+  return plans;
 }

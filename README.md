@@ -15,3 +15,11 @@ Monorepo scaffold for a Pokémon HeartGold/SoulSilver breeding planner.
 npm install
 npm test
 ```
+
+### CLI usage
+
+```
+npm run build -w @hgss-breeding-planner/cli
+node apps/cli/dist/index.js rank --parents parents.csv --target target.json
+node apps/cli/dist/index.js plan --parents parents.csv --target target.json
+```

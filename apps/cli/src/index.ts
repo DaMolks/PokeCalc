@@ -33,10 +33,21 @@ program.command('rank')
   .action(opts => {
     const roster = readParents(opts.parents);
     const target = readTarget(opts.target);
+    // NOTE: abilities mapping non fourni dans le dépôt actuel → fallback vide.
     const abilities: Record<string, [string, string]> = {};
-    const res = rankPairsFromRoster(roster, abilities, target, speciesEggGroups as any, BigInt(opts.seed), +opts.eggs);
-    const csv = res.map(r => `${r.a.species},${r.b.species},${r.probability.toFixed(4)}`).join('\n');
-    if (opts.out) fs.writeFileSync(opts.out, csv); else console.log(csv);
+    const res = rankPairsFromRoster(
+      roster,
+      abilities,
+      target,
+      speciesEggGroups as any,
+      BigInt(opts.seed),
+      +opts.eggs
+    );
+    const header = 'parentA,parentB,probability';
+    const rows = res.map(r => `${r.a.species},${r.b.species},${r.probability.toFixed(4)}`);
+    const out = [header, ...rows].join('\n');
+    if (opts.out) fs.writeFileSync(opts.out, out);
+    else console.log(out);
   });
 
 program.command('plan')
@@ -46,9 +57,11 @@ program.command('plan')
   .action(opts => {
     const roster = readParents(opts.parents);
     const target = readTarget(opts.target);
+    // Signature actuelle du core : planBreedingChain(roster, target)
     const plan = planBreedingChain(roster, target);
-    const md = plan.map(p => `- ${p.description}`).join('\n');
-    if (opts.out) fs.writeFileSync(opts.out, md); else console.log(md);
+    const md = plan.map((p: any) => `- ${p.description}`).join('\n');
+    if (opts.out) fs.writeFileSync(opts.out, md);
+    else console.log(md);
   });
 
 program.parse();
