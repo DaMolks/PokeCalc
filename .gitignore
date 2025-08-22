@@ -1,0 +1,12 @@
+node_modules
+coverage
+dist
+packages/*/dist
+apps/*/dist
+npm-debug.log*
+.DS_Store
+
+packages/data/cache
+*.sav
+*.pk4
+!packages/save-ingest/test/fixtures/*.pk4
